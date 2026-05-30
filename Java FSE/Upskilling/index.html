@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Community Event Portal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap');
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #161a23;
+      --card: #1e2330;
+      --accent: #f0a500;
+      --accent2: #e05c2a;
+      --text: #eaeaea;
+      --muted: #7a8099;
+      --border: #2c3347;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ===== NAVIGATION ===== */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,15,20,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 64px;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; color: var(--accent);
+      text-decoration: none; letter-spacing: 1px;
+      cursor: pointer;
+    }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-size: 0.9rem; font-weight: 500;
+      letter-spacing: 0.5px;
+      transition: color 0.2s;
+      cursor: pointer;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-links a.help-link {
+      color: var(--accent2);
+      border: 1px solid var(--accent2);
+      padding: 4px 12px; border-radius: 20px;
+    }
+
+    /* ===== PAGE SYSTEM ===== */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ===== WELCOME BANNER ===== */
+    #welcomeBanner {
+      background: linear-gradient(135deg, #1a1000 0%, #2a1800 50%, #1a0a00 100%);
+      border-bottom: 2px solid var(--accent);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      animation: slideDown 0.5s ease;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    #welcomeBanner p { font-size: 0.95rem; }
+
+    #welcomeBanner .highlight {
+      background: var(--accent);
+      color: #000; font-weight: 700;
+      padding: 2px 8px; border-radius: 4px;
+      margin: 0 4px;
+    }
+
+    #welcomeBanner span.offer {
+      color: red; font-weight: 700; font-size: 1rem;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      text-align: center;
+      padding: 5rem 2rem 3rem;
+      position: relative; overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(240,165,0,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900; line-height: 1.1;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      color: var(--muted); font-size: 1.1rem;
+      max-width: 600px; margin: 0 auto;
+    }
+
+    /* ===== SECTIONS ===== */
+    section {
+      max-width: 960px; margin: 0 auto 4rem;
+      padding: 0 1.5rem;
+    }
+
+    .section-label {
+      font-size: 0.75rem; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem; font-weight: 700;
+      margin-bottom: 2rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ===== EXERCISE 4: Image Gallery ===== */
+    .gallery-table {
+      width: 100%; border-collapse: separate; border-spacing: 16px;
+    }
+
+    .gallery-table td {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 12px; text-align: center;
+      vertical-align: top;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .gallery-table td:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(240,165,0,0.15);
+    }
+
+    .gallery-table img {
+      width: 100%; height: 140px; object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid var(--border);
+    }
+
+    .gallery-table .caption {
+      font-size: 0.82rem; color: var(--muted);
+      margin-top: 8px;
+    }
+
+    /* ===== EXERCISE 5: Registration Form ===== */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 0.5px; color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    input, select, textarea {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: inherit; font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(240,165,0,0.12);
+    }
+
+    input.error { border-color: #e05c2a; }
+    input.valid { border-color: #4caf50; }
+
+    select option { background: var(--surface); }
+    textarea { resize: vertical; min-height: 100px; }
+
+    .btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-weight: 700;
+      border: none; border-radius: 8px;
+      padding: 12px 28px; cursor: pointer;
+      font-family: inherit; font-size: 1rem;
+      letter-spacing: 0.5px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    output {
+      display: block; margin-top: 1rem;
+      padding: 12px 16px;
+      background: rgba(76,175,80,0.1);
+      border: 1px solid #4caf50;
+      border-radius: 8px; color: #4caf50;
+      font-size: 0.9rem; display: none;
+    }
+
+    /* ===== EXERCISE 6: Event Feedback ===== */
+    .feedback-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    }
+
+    .feedback-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+
+    .feedback-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    #charCount {
+      font-size: 0.8rem; color: var(--muted);
+      margin-top: 4px; text-align: right;
+    }
+
+    .event-image-thumb {
+      width: 100%; height: 120px; object-fit: cover;
+      border-radius: 8px; cursor: zoom-in;
+      transition: transform 0.3s; border: 2px solid var(--border);
+    }
+
+    .event-image-thumb.zoomed {
+      transform: scale(1.5); cursor: zoom-out;
+      z-index: 10; position: relative;
+    }
+
+    .log-box {
+      background: var(--surface); border-radius: 8px;
+      padding: 10px; margin-top: 10px;
+      font-size: 0.8rem; color: var(--muted);
+      min-height: 60px; border: 1px solid var(--border);
+    }
+
+    /* ===== EXERCISE 7: Video ===== */
+    .video-wrap {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+
+    video {
+      width: 100%; display: block;
+      background: #000;
+    }
+
+    .video-msg {
+      padding: 1rem; font-size: 0.9rem; color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ===== EXERCISE 8: Preferences ===== */
+    .pref-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+
+    .pref-status {
+      font-size: 0.85rem; color: var(--muted);
+      padding: 8px 12px; background: var(--surface);
+      border-radius: 6px; border: 1px solid var(--border);
+    }
+
+    /* ===== EXERCISE 9: Geolocation ===== */
+    .geo-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+
+    .geo-result {
+      margin-top: 1rem; padding: 1rem;
+      background: var(--surface); border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.9rem; min-height: 60px;
+    }
+
+    .coords { color: var(--accent); font-weight: 600; }
+
+    /* ===== EXERCISE 10: DevTools ===== */
+    .devtools-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+
+    .console-box {
+      background: #0a0c10; border-radius: 8px;
+      padding: 1rem; font-family: monospace;
+      font-size: 0.85rem; color: #4caf50;
+      min-height: 120px; border: 1px solid #222;
+      margin-top: 1rem;
+    }
+
+    .console-line { margin: 2px 0; }
+    .console-line.err { color: #e05c2a; }
+    .console-line.warn { color: var(--accent); }
+
+    /* ===== FOOTER ===== */
+    footer {
+      text-align: center; padding: 2.5rem 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted); font-size: 0.85rem;
+    }
+
+    .row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .mt { margin-top: 1rem; }
+    .info-box {
+      padding: 10px 14px; background: var(--surface);
+      border-radius: 8px; border: 1px solid var(--border);
+      font-size: 0.85rem; color: var(--muted);
+    }
+
+    /* ===== HELP PAGE STYLES ===== */
+    .help-hero {
+      text-align: center;
+      padding: 4rem 2rem 2.5rem;
+      position: relative; overflow: hidden;
+    }
+    .help-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(240,165,0,0.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .help-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900; line-height: 1.1;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.8rem;
+    }
+    .help-hero p {
+      color: var(--muted); font-size: 1rem;
+      max-width: 560px; margin: 0 auto;
+    }
+
+    .help-wrap {
+      max-width: 900px; margin: 0 auto 4rem;
+      padding: 0 1.5rem;
+    }
+
+    .search-bar {
+      margin: 1.5rem 0 2.5rem;
+      display: flex; gap: 10px;
+    }
+    .search-bar input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 16px;
+      color: var(--text);
+      font-family: inherit; font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-bar input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(240,165,0,0.12);
+    }
+    .search-bar button {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-weight: 700;
+      border: none; border-radius: 8px;
+      padding: 11px 22px; cursor: pointer;
+      font-family: inherit; font-size: 0.9rem;
+      transition: opacity 0.2s;
+    }
+    .search-bar button:hover { opacity: 0.85; }
+
+    #searchResult {
+      margin-bottom: 1.5rem;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: rgba(240,165,0,0.08);
+      border: 1px solid var(--border);
+      font-size: 0.88rem; color: var(--muted);
+      display: none;
+    }
+
+    .help-section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem; font-weight: 700;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 3rem; }
+
+    .faq-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .faq-question {
+      width: 100%; background: none; border: none;
+      color: var(--text); font-family: inherit;
+      font-size: 0.95rem; font-weight: 500;
+      text-align: left; padding: 1rem 1.2rem;
+      cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      transition: background 0.2s;
+    }
+    .faq-question:hover { background: rgba(240,165,0,0.05); }
+    .faq-question .arrow {
+      color: var(--accent); font-size: 1.1rem;
+      transition: transform 0.3s;
+      flex-shrink: 0; margin-left: 12px;
+    }
+    .faq-question.open .arrow { transform: rotate(180deg); }
+
+    .faq-answer {
+      display: none;
+      padding: 0 1.2rem 1rem;
+      color: var(--muted); font-size: 0.9rem;
+      line-height: 1.7;
+      border-top: 1px solid var(--border);
+    }
+    .faq-answer.open { display: block; }
+    .faq-answer a { color: var(--accent); text-decoration: none; cursor: pointer; }
+    .faq-answer a:hover { text-decoration: underline; }
+
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;
+      margin-bottom: 3rem;
+    }
+
+    .contact-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .contact-card .icon { font-size: 2rem; margin-bottom: 0.6rem; }
+    .contact-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+    .contact-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+    .contact-card a {
+      display: inline-block; margin-top: 0.8rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000; font-weight: 700;
+      border-radius: 6px; padding: 7px 18px;
+      font-size: 0.85rem; text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .contact-card a:hover { opacity: 0.85; }
+
+    .tips-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .tip-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+    .tip-card .tip-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .tip-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .tip-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+    .help-feedback-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.8rem;
+      margin-bottom: 3rem;
+    }
+    .help-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+    #helpFormOutput {
+      margin-top: 1rem; padding: 10px 14px;
+      border-radius: 8px; font-size: 0.88rem;
+      display: none;
+    }
+
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--muted); text-decoration: none;
+      font-size: 0.9rem; font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .back-btn:hover { color: var(--accent); }
+
+    @media (max-width: 700px) {
+      .tips-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .feedback-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .nav-links { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <a class="nav-logo" onclick="showPage('portal')">&#127963;&#65039; CommunityHub</a>
+  <ul class="nav-links" id="portalNav">
+    <li><a onclick="showPage('portal'); scrollTo('home')">Home</a></li>
+    <li><a onclick="showPage('portal'); scrollTo('events')">Events</a></li>
+    <li><a onclick="showPage('portal'); scrollTo('register')">Register</a></li>
+    <li><a onclick="showPage('portal'); scrollTo('feedback')">Feedback</a></li>
+    <li><a onclick="showPage('portal'); scrollTo('media')">Media</a></li>
+    <li><a onclick="showPage('portal'); scrollTo('preferences')">Preferences</a></li>
+    <li><a onclick="showPage('portal'); scrollTo('geo')">Find Events</a></li>
+    <li><a onclick="showPage('portal'); scrollTo('devtools')">Dev Tools</a></li>
+    <li><a class="help-link" onclick="showPage('help')">&#10067; Help</a></li>
+  </ul>
+</nav>
+
+<!-- ==================== PORTAL PAGE ==================== -->
+<div id="page-portal" class="page active">
+
+  <!-- Welcome Banner -->
+  <div id="welcomeBanner">
+    <p>
+      Welcome back, <span class="highlight">Alex</span>! &#127881;
+      Special offer: <span class="offer">FREE</span> entry to all events this weekend!
+      <span class="highlight">Limited seats available.</span>
+    </p>
+    <button class="btn" style="padding:6px 16px;font-size:0.8rem;"
+      onclick="document.getElementById('welcomeBanner').style.display='none'">&#10005;</button>
+  </div>
+
+  <!-- Hero -->
+  <section id="home" class="hero">
+    <div class="section-label">Salem City Council</div>
+    <h1>Community<br>Event Portal</h1>
+    <p>Discover local events, register online, and stay connected with your community.</p>
+  </section>
+
+  <!-- Image Gallery -->
+  <section id="events">
+    <div class="section-label">Exercise 4</div>
+    <div class="section-title">&#128444;&#65039; Image Gallery &mdash; Community Events</div>
+    <table class="gallery-table">
+      <tr>
+        <td>
+          <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&h=200&fit=crop&auto=format"
+               alt="Summer Festival" title="Annual Summer Festival">
+          <div class="caption">&#127914; Annual Summer Festival &mdash; July 2025</div>
+        </td>
+        <td>
+          <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=300&h=200&fit=crop&auto=format"
+               alt="City Marathon" title="City Marathon">
+          <div class="caption">&#127939; City Marathon &mdash; June 2025</div>
+        </td>
+        <td>
+          <img src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=300&h=200&fit=crop&auto=format"
+               alt="Farmers Market" title="Farmers Market">
+          <div class="caption">&#129382; Farmers Market &mdash; Every Sunday</div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=300&h=200&fit=crop&auto=format"
+               alt="Open Air Concert" title="Open Air Concert">
+          <div class="caption">&#127925; Open Air Concert &mdash; August 2025</div>
+        </td>
+        <td>
+          <img src="https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=300&h=200&fit=crop&auto=format"
+               alt="Art Exhibition" title="Art Exhibition">
+          <div class="caption">&#127912; Art Exhibition &mdash; September 2025</div>
+        </td>
+        <td>
+          <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&h=200&fit=crop&auto=format"
+               alt="Food Carnival" title="Food Carnival">
+          <div class="caption">&#127836; Food Carnival &mdash; October 2025</div>
+        </td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- Registration Form -->
+  <section id="register">
+    <div class="section-label">Exercise 5</div>
+    <div class="section-title">&#128203; Event Registration Form</div>
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" placeholder="e.g. Priya Sharma" required autofocus>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="eventDate">Preferred Date</label>
+          <input type="date" id="eventDate" required>
+        </div>
+        <div class="form-group">
+          <label for="eventType">Event Type</label>
+          <select id="eventType">
+            <option value="">-- Select Event --</option>
+            <option value="Festival">&#127914; Summer Festival (Rs.0)</option>
+            <option value="Marathon">&#127939; City Marathon (Rs.200)</option>
+            <option value="Concert">&#127925; Open Air Concert (Rs.150)</option>
+            <option value="Art">&#127912; Art Exhibition (Rs.100)</option>
+            <option value="Food">&#127836; Food Carnival (Rs.50)</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label for="message">Message / Special Requests</label>
+          <textarea id="message" placeholder="Any dietary needs, accessibility requirements, etc."></textarea>
+        </div>
+      </div>
+      <div class="row mt">
+        <button class="btn" onclick="submitForm()">Register Now &rarr;</button>
+      </div>
+      <output id="formOutput"></output>
+    </div>
+  </section>
+
+  <!-- Event Feedback -->
+  <section id="feedback">
+    <div class="section-label">Exercise 6</div>
+    <div class="section-title">&#128172; Event Feedback &amp; Interactions</div>
+    <div class="feedback-grid">
+      <div class="feedback-card">
+        <h3>&#128222; Phone Validation (onblur)</h3>
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" placeholder="10-digit number"
+                 onblur="validatePhone(this)">
+          <span id="phoneMsg" style="font-size:0.8rem;"></span>
+        </div>
+
+        <h3 style="margin-top:1.2rem;">&#127903;&#65039; Event Fee (onchange)</h3>
+        <div class="form-group">
+          <label for="feeEventType">Select Event</label>
+          <select id="feeEventType" onchange="showFee(this)">
+            <option value="">-- Choose --</option>
+            <option value="0">&#127914; Summer Festival</option>
+            <option value="200">&#127939; City Marathon</option>
+            <option value="150">&#127925; Open Air Concert</option>
+            <option value="100">&#127912; Art Exhibition</option>
+            <option value="50">&#127836; Food Carnival</option>
+          </select>
+          <span id="feeDisplay" style="color:var(--accent);font-weight:600;margin-top:6px;"></span>
+        </div>
+
+        <h3 style="margin-top:1.2rem;">&#9989; Submit Confirmation (onclick)</h3>
+        <button class="btn" onclick="showConfirm()" style="margin-top:0.5rem;">Submit Feedback</button>
+        <span id="confirmMsg" style="font-size:0.85rem;color:#4caf50;display:block;margin-top:6px;"></span>
+      </div>
+
+      <div class="feedback-card">
+        <h3>&#128444;&#65039; Image Zoom (ondblclick)</h3>
+        <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=400&h=200&fit=crop&auto=format"
+             alt="Festival" class="event-image-thumb" id="zoomImg"
+             ondblclick="toggleZoom(this)" title="Double-click to zoom">
+        <p style="font-size:0.78rem;color:var(--muted);margin-top:6px;">Double-click to enlarge</p>
+
+        <h3 style="margin-top:1.2rem;">&#9000;&#65039; Feedback Text (keyup counter)</h3>
+        <textarea id="feedbackText" rows="3"
+                  placeholder="Type your feedback..."
+                  onkeyup="countChars(this)"></textarea>
+        <div id="charCount">0 / 300 characters</div>
+        <div class="log-box" id="keyLog">Key events will appear here...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video -->
+  <section id="media">
+    <div class="section-label">Exercise 7</div>
+    <div class="section-title">&#127902;&#65039; Video Invite &mdash; Media Events</div>
+    <div class="video-wrap">
+      <video id="promoVideo" controls
+             oncanplay="videoReady()"
+             onplay="logVideoEvent('&#9654; Video started playing')"
+             onpause="logVideoEvent('&#9646;&#9646; Video paused')"
+             onended="logVideoEvent('&#9646;&#9646; Video ended')">
+        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        Your browser does not support the video element.
+      </video>
+      <div class="video-msg" id="videoMsg">Loading video...</div>
+    </div>
+  </section>
+
+  <!-- Preferences -->
+  <section id="preferences">
+    <div class="section-label">Exercise 8</div>
+    <div class="section-title">&#128190; User Preferences &mdash; localStorage &amp; sessionStorage</div>
+    <div class="pref-card">
+      <div class="form-group">
+        <label for="prefEvent">Preferred Event Type</label>
+        <select id="prefEvent" onchange="savePref(this.value)">
+          <option value="">-- Select Preference --</option>
+          <option value="Festival">&#127914; Summer Festival</option>
+          <option value="Marathon">&#127939; Marathon</option>
+          <option value="Concert">&#127925; Concert</option>
+          <option value="Art">&#127912; Art Exhibition</option>
+          <option value="Food">&#127836; Food Carnival</option>
+        </select>
+      </div>
+      <div class="pref-status" id="prefStatus">No preference saved yet.</div>
+      <div class="row">
+        <button class="btn" onclick="loadPref()">Load Saved Preference</button>
+        <button class="btn" style="background:linear-gradient(135deg,#e05c2a,#c0392b);"
+                onclick="clearPref()">Clear Preferences</button>
+      </div>
+      <div class="info-box" id="storageInfo">
+        localStorage and sessionStorage status will appear here.
+      </div>
+    </div>
+  </section>
+
+  <!-- Geolocation -->
+  <section id="geo">
+    <div class="section-label">Exercise 9</div>
+    <div class="section-title">&#128205; Geolocation &mdash; Find Nearby Events</div>
+    <div class="geo-card">
+      <p style="color:var(--muted);margin-bottom:1rem;">
+        Click the button to find your location and discover nearby community events.
+      </p>
+      <button class="btn" onclick="findNearbyEvents()">&#128205; Find Nearby Events</button>
+      <div class="geo-result" id="geoResult">Your location will appear here...</div>
+    </div>
+  </section>
+
+  <!-- DevTools -->
+  <section id="devtools">
+    <div class="section-label">Exercise 10</div>
+    <div class="section-title">&#128295; Debugging with Chrome DevTools</div>
+    <div class="devtools-card">
+      <p style="color:var(--muted);margin-bottom:1rem;">
+        Open Chrome DevTools (F12) &rarr; Console tab. Click buttons to log messages and
+        practice debugging.
+      </p>
+      <div class="row">
+        <button class="btn" onclick="logInfo()">&#128203; Log Info</button>
+        <button class="btn"
+          style="background:linear-gradient(135deg,#f0a500,#c07800);"
+          onclick="logWarning()">&#9888;&#65039; Log Warning</button>
+        <button class="btn"
+          style="background:linear-gradient(135deg,#e05c2a,#c0392b);"
+          onclick="triggerError()">&#128027; Trigger Error</button>
+        <button class="btn"
+          style="background:linear-gradient(135deg,#4caf50,#2e7d32);"
+          onclick="debugBreakpoint()">&#9208;&#65039; Breakpoint Demo</button>
+      </div>
+      <div class="console-box" id="consoleBox">
+        <div class="console-line warn">// DevTools Console Simulator</div>
+        <div class="console-line">// Click buttons above to log messages</div>
+        <div class="console-line">// Open F12 &rarr; Console to see real logs too!</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&#127963;&#65039; <strong>CommunityHub</strong> &mdash; Salem City Council Event Portal</p>
+    <p style="margin-top:6px;">HTML5 Exercises 1&ndash;10 | Digital Nurture Java FSE Upskilling</p>
+  </footer>
+
+</div><!-- end #page-portal -->
+
+
+<!-- ==================== HELP PAGE ==================== -->
+<div id="page-help" class="page">
+
+  <div class="help-hero">
+    <div class="section-label">Salem City Council</div>
+    <h1>&#10067; Help Centre</h1>
+    <p>Find answers, tips, and support for the Community Event Portal.</p>
+    <div style="margin-top:1.5rem;">
+      <span class="back-btn" onclick="showPage('portal')">&#8592; Back to Portal</span>
+    </div>
+  </div>
+
+  <div class="help-wrap">
+
+    <!-- Search -->
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search help topics... e.g. registration, geolocation">
+      <button onclick="searchFAQ()">Search</button>
+    </div>
+    <div id="searchResult"></div>
+
+    <!-- FAQ -->
+    <div class="help-section-title">&#128221; Frequently Asked Questions</div>
+    <div class="faq-list" id="faqList">
+
+      <div class="faq-item" data-keywords="register event registration form submit">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How do I register for an event?
+          <span class="arrow">&#9660;</span>
+        </button>
+        <div class="faq-answer">
+          Go to the <strong>Register</strong> section on the portal. Fill in your full name, email address, preferred date, and select an event type. Click <strong>Register Now</strong>. A confirmation message will appear on the page. Make sure all fields are filled &mdash; the form will highlight any missing information.
+        </div>
+      </div>
+
+      <div class="faq-item" data-keywords="phone number validation 10 digit error">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          Why is my phone number showing an error?
+          <span class="arrow">&#9660;</span>
+        </button>
+        <div class="faq-answer">
+          The phone field requires exactly <strong>10 digits</strong> (no spaces, dashes, or country code). The field is validated when you click away (on blur). If you see a red border, re-enter your number with exactly 10 digits and click outside the field.
+        </div>
+      </div>
+
+      <div class="faq-item" data-keywords="event fee price cost free entry">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          What are the event entry fees?
+          <span class="arrow">&#9660;</span>
+        </button>
+        <div class="faq-answer">
+          <ul style="margin-left:1.2rem; line-height:2.2;">
+            <li>&#127914; Summer Festival &mdash; <strong>FREE</strong></li>
+            <li>&#127939; City Marathon &mdash; <strong>Rs. 200</strong></li>
+            <li>&#127925; Open Air Concert &mdash; <strong>Rs. 150</strong></li>
+            <li>&#127912; Art Exhibition &mdash; <strong>Rs. 100</strong></li>
+            <li>&#127836; Food Carnival &mdash; <strong>Rs. 50</strong></li>
+          </ul>
+          You can also check the fee in real time in the <a onclick="showPage('portal'); scrollTo('feedback')">Feedback section</a> by selecting an event from the dropdown.
+        </div>
+      </div>
+
+      <div class="faq-item" data-keywords="location geolocation find nearby events permission denied">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          The &ldquo;Find Nearby Events&rdquo; button isn&rsquo;t working. What do I do?
+          <span class="arrow">&#9660;</span>
+        </button>
+        <div class="faq-answer">
+          This feature uses your browser&rsquo;s <strong>Geolocation API</strong>. Make sure you:<br><br>
+          1. Allow location access when the browser prompts you.<br>
+          2. Use a supported browser (Chrome, Firefox, Edge, Safari).<br>
+          3. If you previously denied permission, reset it: click the <strong>lock icon</strong> in the address bar &rarr; Site Settings &rarr; Location &rarr; Allow.
+        </div>
+      </div>
+
+      <div class="faq-item" data-keywords="preference saved localStorage load clear storage">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How does the &ldquo;Save Preference&rdquo; feature work?
+          <span class="arrow">&#9660;</span>
+        </button>
+        <div class="faq-answer">
+          Your preferred event type is saved to your browser&rsquo;s <strong>localStorage</strong>, so it persists even after you close the tab. A session copy is also stored in <strong>sessionStorage</strong> (clears when the tab is closed). Use <strong>Load Saved Preference</strong> to restore it, or <strong>Clear Preferences</strong> to remove both.
+        </div>
+      </div>
+
+      <div class="faq-item" data-keywords="video not playing media load error stream">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          The video in the Media section won&rsquo;t play. How do I fix it?
+          <span class="arrow">&#9660;</span>
+        </button>
+        <div class="faq-answer">
+          Ensure you have a stable internet connection, as the video loads from an external source. Try refreshing the page. Some corporate or school networks may block video streaming &mdash; in that case, try on a personal network.
+        </div>
+      </div>
+
+      <div class="faq-item" data-keywords="devtools console log debug F12 chrome breakpoint">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          What is the Dev Tools section for?
+          <span class="arrow">&#9660;</span>
+        </button>
+        <div class="faq-answer">
+          The <strong>Dev Tools</strong> section is a learning exercise. Click the buttons to simulate console logs, warnings, and errors. Press <strong>F12</strong> to open Chrome DevTools and see the real browser console alongside the on-page simulator. The <strong>Breakpoint Demo</strong> button uses the <code style="background:var(--surface);padding:1px 5px;border-radius:3px;">debugger</code> statement &mdash; open the Sources tab to inspect variables when execution pauses.
+        </div>
+      </div>
+
+      <div class="faq-item" data-keywords="zoom image double click enlarge festival">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          How do I zoom into the event image?
+          <span class="arrow">&#9660;</span>
+        </button>
+        <div class="faq-answer">
+          In the <strong>Feedback</strong> section, <strong>double-click</strong> the festival image to enlarge it. Double-click again to return it to normal size.
+        </div>
+      </div>
+
+      <div class="faq-item" data-keywords="leave warning unfinished form beforeunload">
+        <button class="faq-question" onclick="toggleFAQ(this)">
+          Why does a warning appear when I try to leave the page?
+          <span class="arrow">&#9660;</span>
+        </button>
+        <div class="faq-answer">
+          If you have started filling in the registration form (entered your name), the browser will show a warning before you leave. This prevents accidental loss of your registration data. Complete or clear the form to leave without the warning.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Quick Tips -->
+    <div class="help-section-title">&#128161; Quick Tips</div>
+    <div class="tips-grid">
+      <div class="tip-card">
+        <div class="tip-icon">&#9997;&#65039;</div>
+        <h4>Auto-save Warning</h4>
+        <p>Starting the registration form? The browser will warn you before leaving so you don&rsquo;t lose your progress.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">&#128104;&#8205;&#128187;</div>
+        <h4>Keyboard Shortcuts</h4>
+        <p>Press <strong>F12</strong> to open DevTools. Use <strong>Tab</strong> to navigate form fields quickly.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">&#128247;</div>
+        <h4>Feedback Limit</h4>
+        <p>The feedback text box allows up to <strong>300 characters</strong>. A live counter shows how many you&rsquo;ve typed.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">&#128241;</div>
+        <h4>Mobile Friendly</h4>
+        <p>The portal works on all mobile browsers. All forms and interactive features are touch-compatible.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">&#127881;</div>
+        <h4>Weekend Offer</h4>
+        <p>Check the welcome banner at the top of the portal for special free-entry weekend offers!</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-icon">&#128205;</div>
+        <h4>Location Access</h4>
+        <p>Granting location access in <strong>Find Events</strong> helps you discover the nearest Salem events.</p>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="help-section-title">&#128222; Contact Support</div>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="icon">&#128140;</div>
+        <h3>Email Support</h3>
+        <p>Send us an email and we&rsquo;ll get back to you within 24 hours on working days.</p>
+        <a href="mailto:support@salemcommunity.gov.in">Send Email</a>
+      </div>
+      <div class="contact-card">
+        <div class="icon">&#128222;</div>
+        <h3>Phone Helpline</h3>
+        <p>Call our helpline Monday&ndash;Friday, 9 AM to 5 PM IST for immediate assistance.</p>
+        <a href="tel:+914272222000">+91 427 222 2000</a>
+      </div>
+    </div>
+
+    <!-- Help Feedback Form -->
+    <div class="help-section-title">&#128172; Was This Page Helpful?</div>
+    <div class="help-feedback-card">
+      <div class="help-form-group">
+        <label for="helpTopic">Topic</label>
+        <select id="helpTopic">
+          <option value="">-- Select a topic --</option>
+          <option>Event Registration</option>
+          <option>Phone Validation</option>
+          <option>Geolocation</option>
+          <option>Preferences / Storage</option>
+          <option>Video / Media</option>
+          <option>Dev Tools</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="help-form-group">
+        <label for="helpMsg">Your Question or Feedback</label>
+        <textarea id="helpMsg" placeholder="Tell us what you need help with..."></textarea>
+      </div>
+      <button class="btn" onclick="submitHelpForm()">Send &rarr;</button>
+      <div id="helpFormOutput"></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>&#127963;&#65039; <strong>CommunityHub</strong> &mdash; Salem City Council Event Portal</p>
+    <p style="margin-top:6px;">Help Centre | Digital Nurture Java FSE Upskilling</p>
+  </footer>
+
+</div><!-- end #page-help -->
+
+
+<script>
+  /* ===== PAGE ROUTER ===== */
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function scrollTo(id) {
+    setTimeout(function() {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+
+  /* ===== EXERCISE 5: Form Submission ===== */
+  function submitForm() {
+    const name      = document.getElementById('fullName').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const eventDate = document.getElementById('eventDate').value;
+    const eventType = document.getElementById('eventType').value;
+    const out       = document.getElementById('formOutput');
+
+    if (!name || !email || !eventDate || !eventType) {
+      out.style.display = 'block';
+      out.style.background = 'rgba(224,92,42,0.1)';
+      out.style.border = '1px solid #e05c2a';
+      out.style.color = '#e05c2a';
+      out.textContent = '\u26a0\ufe0f Please fill in all required fields!';
+      return;
+    }
+
+    out.style.display = 'block';
+    out.style.background = 'rgba(76,175,80,0.1)';
+    out.style.border = '1px solid #4caf50';
+    out.style.color = '#4caf50';
+    out.textContent = '\u2705 Registration confirmed! ' + name + ' registered for ' + eventType +
+      ' on ' + eventDate + '. A confirmation will be sent to ' + email + '.';
+  }
+
+  /* ===== EXERCISE 6: Event Handlers ===== */
+
+  function validatePhone(input) {
+    const val = input.value.replace(/\D/g, '');
+    const msg = document.getElementById('phoneMsg');
+    if (val.length === 10) {
+      input.className = 'valid';
+      msg.textContent = '\u2705 Valid phone number';
+      msg.style.color = '#4caf50';
+    } else {
+      input.className = 'error';
+      msg.textContent = '\u274c Must be exactly 10 digits';
+      msg.style.color = '#e05c2a';
+    }
+  }
+
+  function showFee(select) {
+    const fees = { '0':'FREE', '50':'Rs.50', '100':'Rs.100', '150':'Rs.150', '200':'Rs.200' };
+    const display = document.getElementById('feeDisplay');
+    display.textContent = select.value !== '' ? 'Entry Fee: ' + fees[select.value] : '';
+  }
+
+  function showConfirm() {
+    document.getElementById('confirmMsg').textContent = '\u2705 Thank you! Your feedback has been submitted.';
+  }
+
+  function toggleZoom(img) {
+    img.classList.toggle('zoomed');
+  }
+
+  function countChars(textarea) {
+    const len = textarea.value.length;
+    const log = document.getElementById('keyLog');
+    document.getElementById('charCount').textContent = len + ' / 300 characters';
+    if (len > 300) textarea.value = textarea.value.substring(0, 300);
+    const latest = document.createElement('div');
+    latest.textContent = 'Key pressed \u2014 length: ' + len;
+    latest.style.cssText = 'font-size:0.78rem;color:#7a8099;';
+    log.insertBefore(latest, log.firstChild);
+    if (log.children.length > 5) log.lastChild.remove();
+  }
+
+  /* ===== EXERCISE 7: Video Events ===== */
+  function videoReady() {
+    document.getElementById('videoMsg').textContent = '\u2705 Video ready to play!';
+  }
+  function logVideoEvent(msg) {
+    document.getElementById('videoMsg').textContent = msg;
+  }
+
+  window.onbeforeunload = function() {
+    const name = document.getElementById('fullName').value;
+    if (name) return 'You have an unfinished registration form. Are you sure you want to leave?';
+  };
+
+  /* ===== EXERCISE 8: localStorage & sessionStorage ===== */
+  function savePref(value) {
+    if (!value) return;
+    localStorage.setItem('preferredEvent', value);
+    sessionStorage.setItem('sessionPref', value);
+    updatePrefStatus();
+  }
+
+  function loadPref() {
+    const pref = localStorage.getItem('preferredEvent');
+    const sel  = document.getElementById('prefEvent');
+    if (pref) {
+      sel.value = pref;
+      updatePrefStatus();
+    } else {
+      document.getElementById('prefStatus').textContent = '\u26a0\ufe0f No saved preference found in localStorage.';
+    }
+  }
+
+  function clearPref() {
+    localStorage.removeItem('preferredEvent');
+    sessionStorage.removeItem('sessionPref');
+    document.getElementById('prefEvent').value = '';
+    document.getElementById('prefStatus').textContent = '\ud83d\uddd1\ufe0f Preferences cleared from localStorage & sessionStorage.';
+    document.getElementById('storageInfo').textContent = 'localStorage: empty | sessionStorage: empty';
+  }
+
+  function updatePrefStatus() {
+    const ls = localStorage.getItem('preferredEvent') || 'not set';
+    const ss = sessionStorage.getItem('sessionPref')  || 'not set';
+    document.getElementById('prefStatus').textContent  = '\u2705 Preference saved: ' + ls;
+    document.getElementById('storageInfo').textContent = 'localStorage: "' + ls + '" | sessionStorage: "' + ss + '"';
+  }
+
+  window.addEventListener('load', function() { loadPref(); });
+
+  /* ===== EXERCISE 9: Geolocation ===== */
+  function findNearbyEvents() {
+    const result = document.getElementById('geoResult');
+    result.innerHTML = '\u23f3 Fetching your location...';
+
+    if (!navigator.geolocation) {
+      result.innerHTML = '\u274c Geolocation is not supported by your browser.';
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        const lat = pos.coords.latitude.toFixed(5);
+        const lon = pos.coords.longitude.toFixed(5);
+        const acc = pos.coords.accuracy.toFixed(0);
+        result.innerHTML =
+          '<p>\u2705 Location found!</p>' +
+          '<p class="coords">Latitude: ' + lat + ' | Longitude: ' + lon + '</p>' +
+          '<p>Accuracy: \u00b1' + acc + ' meters</p>' +
+          '<p style="margin-top:8px;color:var(--accent);">\ud83c\udfa4 Nearest Event: <strong>Salem Summer Festival</strong> \u2014 2.3 km away</p>' +
+          '<p>\ud83c\udfc3 <strong>City Marathon</strong> \u2014 4.1 km away</p>';
+      },
+      function(err) {
+        const msgs = {
+          1: '\ud83d\udeab Permission denied. Please allow location access.',
+          2: '\ud83d\udce1 Position unavailable. Try again.',
+          3: '\u23f1\ufe0f Request timed out. Please try again.'
+        };
+        result.innerHTML = '\u274c Error: ' + (msgs[err.code] || err.message);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
+
+  /* ===== EXERCISE 10: DevTools Debugging ===== */
+  let logCount = 0;
+
+  function addConsoleLine(text, type) {
+    logCount++;
+    const box  = document.getElementById('consoleBox');
+    const line = document.createElement('div');
+    line.className = 'console-line ' + (type || '');
+    line.textContent = '[' + logCount + '] ' + new Date().toLocaleTimeString() + ' \u2014 ' + text;
+    box.insertBefore(line, box.firstChild);
+  }
+
+  function logInfo() {
+    const msg = 'Portal loaded successfully. 6 events available.';
+    console.log('%c[INFO] ' + msg, 'color: #4caf50');
+    addConsoleLine('[INFO] ' + msg, '');
+    debugger;
+  }
+
+  function logWarning() {
+    const msg = 'Seat availability low for City Marathon!';
+    console.warn('[WARN] ' + msg);
+    addConsoleLine('[WARN] ' + msg, 'warn');
+  }
+
+  function triggerError() {
+    try {
+      null.nonExistentMethod();
+    } catch(e) {
+      console.error('[ERROR] ' + e.message);
+      addConsoleLine('[ERROR] ' + e.message, 'err');
+    }
+  }
+
+  function debugBreakpoint() {
+    const x = 42, y = x * 2;
+    debugger;
+    const result = 'Breakpoint hit! x=' + x + ', y=' + y + '. Open DevTools \u2192 Sources to inspect.';
+    console.log(result);
+    addConsoleLine(result, 'warn');
+  }
+
+  /* ===== HELP PAGE SCRIPTS ===== */
+
+  function toggleFAQ(btn) {
+    const answer = btn.nextElementSibling;
+    const isOpen = answer.classList.contains('open');
+    document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+    document.querySelectorAll('.faq-question').forEach(b => b.classList.remove('open'));
+    if (!isOpen) {
+      answer.classList.add('open');
+      btn.classList.add('open');
+    }
+  }
+
+  function searchFAQ() {
+    const query  = document.getElementById('searchInput').value.trim().toLowerCase();
+    const result = document.getElementById('searchResult');
+    if (!query) { result.style.display = 'none'; return; }
+
+    const items = document.querySelectorAll('.faq-item');
+    let found = 0;
+    items.forEach(function(item) {
+      const keywords = (item.getAttribute('data-keywords') || '').toLowerCase();
+      const question = item.querySelector('.faq-question').textContent.toLowerCase();
+      const answer   = item.querySelector('.faq-answer').textContent.toLowerCase();
+      const match    = keywords.includes(query) || question.includes(query) || answer.includes(query);
+      item.style.display = match ? '' : 'none';
+      if (match) found++;
+    });
+
+    result.style.display = 'block';
+    result.textContent = found > 0
+      ? found + ' result' + (found > 1 ? 's' : '') + ' found for "' + query + '"'
+      : 'No results found for "' + query + '". Try different keywords.';
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var si = document.getElementById('searchInput');
+    if (si) {
+      si.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') searchFAQ();
+        if (this.value === '') {
+          document.querySelectorAll('.faq-item').forEach(function(i) { i.style.display = ''; });
+          document.getElementById('searchResult').style.display = 'none';
+        }
+      });
+    }
+  });
+
+  function submitHelpForm() {
+    const topic = document.getElementById('helpTopic').value;
+    const msg   = document.getElementById('helpMsg').value.trim();
+    const out   = document.getElementById('helpFormOutput');
+    if (!topic || !msg) {
+      out.style.display = 'block';
+      out.style.background = 'rgba(224,92,42,0.1)';
+      out.style.border = '1px solid #e05c2a';
+      out.style.color = '#e05c2a';
+      out.textContent = 'Please select a topic and enter your message.';
+      return;
+    }
+    out.style.display = 'block';
+    out.style.background = 'rgba(76,175,80,0.1)';
+    out.style.border = '1px solid #4caf50';
+    out.style.color = '#4caf50';
+    out.textContent = '\u2705 Thank you! Your query about "' + topic + '" has been received. We\'ll respond within 24 hours.';
+    document.getElementById('helpTopic').value = '';
+    document.getElementById('helpMsg').value = '';
+  }
+</script>
+
+</body>
+</html>
